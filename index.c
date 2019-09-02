@@ -31,7 +31,7 @@
 //      return dest;
 // }
 
-void pwd_custom()
+void pwd_custom(char* flags)
 {
     DIR *directory;
     int root_inode;
@@ -46,6 +46,19 @@ void pwd_custom()
     char buffer[100];
     char* orig_path = getcwd(buffer,100);
     // printf("%s\n\n\n",orig_path);
+
+    if(flags!=NULL){
+        printf("Version 1.0--> Implementation inspired from Github source of Tirth Shah.\n");
+        printf("Modified by Vineet Sawhney");
+        return;
+    }
+    // else{
+    //     if(parsed[1]!=NULL){
+    //         printf("Unsupported arguments");
+    //         return;
+    //     }
+    // }
+    
     if (lstat(".", &statbuf))
     {
         perror("opendir(.)");
@@ -133,8 +146,8 @@ void loader()
     for (i = 0; i <= 40; i++)
     {
         printf(BOLDGREEN "\r[%s]" RESET, str);
-        str[i] = '|';
-        usleep(10000);
+        str[i] = '-';
+        usleep(40000);
         fflush(stdout);
     }
     // reset();
@@ -142,7 +155,7 @@ void loader()
 
 void init_s()
 {
-    unsigned ms_delay = 2;
+    unsigned ms_delay = 13;
     unsigned usecs = ms_delay * 1000;
     clear();
     printf(BOLDWHITE "**********WELCOME TO MY SHELL ************" RESET);
@@ -256,7 +269,7 @@ int commands(char **parsed)
     char *username;
 
     ListOfOwnCmds[0] = "exit";
-    ListOfOwnCmds[1] = "cd";
+    ListOfOwnCmds[1] = "cd_c";
     ListOfOwnCmds[2] = "list";
     ListOfOwnCmds[3] = "pwd_c";
 
@@ -282,7 +295,7 @@ int commands(char **parsed)
         list_commands();
         return 1;
     case 4:
-        pwd_custom();
+        pwd_custom(parsed[1]);
         return 1;
     default:
         break;
