@@ -47,17 +47,17 @@ void pwd_custom(char* flags)
     char* orig_path = getcwd(buffer,100);
     // printf("%s\n\n\n",orig_path);
 
-    if(flags!=NULL){
+    if(strcmp(flags,"--version")){
         printf("Version 1.0--> Implementation inspired from Github source of Tirth Shah.\n");
         printf("Modified by Vineet Sawhney");
         return;
     }
-    // else{
-    //     if(parsed[1]!=NULL){
-    //         printf("Unsupported arguments");
-    //         return;
-    //     }
-    // }
+    else{
+        if(flags!=NULL){
+            printf("Unsupported arguments");
+            return;
+        }
+    }
     
     if (lstat(".", &statbuf))
     {
@@ -288,10 +288,11 @@ int commands(char **parsed)
         printf("\nGoodbye\n");
         exit(0);
     case 2:
+        if (parsed[1] == NULL)
+            return 1;
         chdir(parsed[1]);
         return 1;
     case 3:
-        // openHelp();
         list_commands();
         return 1;
     case 4:
@@ -303,6 +304,7 @@ int commands(char **parsed)
 
     return 0;
 }
+
 
 int processString(char *str, char **parsed)
 {
@@ -333,6 +335,26 @@ int processString(char *str, char **parsed)
         return 1 + piped;
 }
 
+void execArgs(char** parsed) 
+{ 
+    // Forking a child 
+    pid_t pid = fork();  
+  
+    if (pid == -1) { 
+        printf(BOLDRED"\nCoudln't fork child.."RESET); 
+        return; 
+    } else if (pid == 0) { 
+        if (execvp(parsed[0], parsed) < 0) { 
+            printf(BOLDRED"\nError executing command.."RESET); 
+        } 
+        exit(0); 
+    } else { 
+        // waiting for child to terminate 
+        wait(NULL);  
+        return; 
+    } 
+} 
+
 int main()
 {
     char user_input[MAX_CHAR];
@@ -354,5 +376,11 @@ int main()
 
         printf("\nInput is %s\n", user_input);
         parsedCommBranch = processString(user_input, parsedArgs);
+        if (parsedCommBranch == 1) 
+            execArgs(parsedArgs); 
+  
+        if (parsedCommBranch == 2) 
+            printf("Pipes not implemented yet. Come back soon.");
+            // execArgsPiped(parsedArgs, parsedArgsPiped); 
     }
 }
