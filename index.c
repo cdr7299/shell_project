@@ -20,18 +20,14 @@
 #define BOLDBLUE "\033[1m\033[34m"  /* Bold Blue */
 #define BOLDCYAN "\033[1m\033[36m"  /* Bold Cyan */
 #define BOLDWHITE "\033[1m\033[37m" /* Bold White */
+#define TEST_ANIM_VAL_LOADER 10000
+#define MASTER_ANIM_VAL_LOADER 150000
+#define TEST_ANIM_VAL_TEXT 2
+#define MASTER_ANIM_VAL_TEXT 12
 
-// #define PATH_MAX 100
-// char *concatenate_parsed(char * dest, char *strings[], size_t number)
-// {
-//      dest[0] = '\0';
-//      for (size_t i = 0; i < number; i++) {
-//          strcat(dest, strings[i]);
-//      }
-//      return dest;
-// }
+int test = 0;
 
-void pwd_custom(char* flags)
+void pwd_custom(char *flags)
 {
     DIR *directory;
     int root_inode;
@@ -41,24 +37,25 @@ void pwd_custom(char* flags)
     struct dirent *fileEntry;
     char *parsed[10];
     char test[100];
-    // printf("Mem all succ");
     int total_length_dir = 0;
     char buffer[100];
-    char* orig_path = getcwd(buffer,100);
-    // printf("%s\n\n\n",orig_path);
+    char *orig_path = getcwd(buffer, 100);
+    char *ver = "--version";
+    if (flags != NULL)
+    {
 
-    if(strcmp(flags,"--version")){
-        printf("Version 1.0--> Implementation inspired from Github source of Tirth Shah.\n");
-        printf("Modified by Vineet Sawhney");
+        if (!strcmp(flags, ver))
+        {
+            printf("Version 1.0--> Implementation inspired from Github source of Tirth Shah.\n");
+            printf("Modified by Vineet Sawhney");
+        }
+        else
+        {
+            printf("Invalid flags. Please do man_c pwd_c to see available options");
+        }
         return;
     }
-    else{
-        if(flags!=NULL){
-            printf("Unsupported arguments");
-            return;
-        }
-    }
-    
+
     if (lstat(".", &statbuf))
     {
         perror("opendir(.)");
@@ -66,17 +63,16 @@ void pwd_custom(char* flags)
     }
     else
     {
-        //get the inode of the current directory
+        // Find inode of current dir
         inode = statbuf.st_ino;
-        //print mssg and exit if current directory is the root directory
+        // printf("%d\n\n\n",inode);
         if (inode == 2)
         {
-            printf("and then we're at the root directory\n");
+            printf("/home");
             exit(1);
         }
 
         root_inode = inode;
-        //traverse through the parent directories until inode is equal to 2
         int z = 0;
         while (inode != 2)
         {
@@ -94,12 +90,10 @@ void pwd_custom(char* flags)
                     //print out directory name if inodes match
                     if (inode == root_inode)
                     {
-                        
                         parsed[z] = malloc(100);
                         parsed[z] = strdup(fileEntry->d_name);
                         //found parent directory}
                         z++;
-
                     }
                     else if (inode == 2)
                     {
@@ -126,28 +120,36 @@ void pwd_custom(char* flags)
         }
         total_length_dir = z;
     }
-    for(int i = total_length_dir  ; i>=0; i--){
-        printf("%s->",parsed[i]);
+    for (int i = total_length_dir; i >= 0; i--)
+    {
+        printf("%s->", parsed[i]);
     }
-    char * par = malloc(100);
+    char *par = malloc(100);
     chdir(orig_path);
     printf("\n");
     fflush(stdout);
-
 }
 
 void loader()
 {
     printf("Dropping to shell. Please wait...\n");
-
     int i;
     char str[] = "                                        ";
-    // green();
+    float usec_val ;
+    if (test == 1){
+        usec_val = TEST_ANIM_VAL_LOADER;
+    }
+    else{
+        printf("Loader set a master");
+        usec_val = MASTER_ANIM_VAL_LOADER;
+    }
+
     for (i = 0; i <= 40; i++)
     {
         printf(BOLDGREEN "\r[%s]" RESET, str);
         str[i] = '-';
-        usleep(40000);
+        usleep(usec_val);
+        usec_val = usec_val*0.85;
         fflush(stdout);
     }
     // reset();
@@ -155,7 +157,10 @@ void loader()
 
 void init_s()
 {
-    unsigned ms_delay = 13;
+    unsigned ms_delay;
+    if(test){ms_delay = TEST_ANIM_VAL_TEXT;}
+    else{ms_delay = MASTER_ANIM_VAL_TEXT;}
+
     unsigned usecs = ms_delay * 1000;
     clear();
     printf(BOLDWHITE "**********WELCOME TO MY SHELL ************" RESET);
@@ -261,10 +266,10 @@ void parseSpace(char *str, char **parsed)
 
 int commands(char **parsed)
 {
-    printf("Command given : %s\n", parsed[0]);
-    printf("Arguments passed %s\n", parsed[1]);
+    // printf("Command given : %s\n", parsed[0]);
+    // printf("Arguments passed %s\n", parsed[1]);
 
-    int NoOfOwnCmds = 4, i, switchOwnArg = 0;
+    int NoOfOwnCmds = 5, i, switchOwnArg = 0;
     char *ListOfOwnCmds[NoOfOwnCmds];
     char *username;
 
@@ -272,6 +277,7 @@ int commands(char **parsed)
     ListOfOwnCmds[1] = "cd_c";
     ListOfOwnCmds[2] = "list";
     ListOfOwnCmds[3] = "pwd_c";
+    ListOfOwnCmds[4] = "cd";
 
     for (i = 0; i < NoOfOwnCmds; i++)
     {
@@ -298,13 +304,16 @@ int commands(char **parsed)
     case 4:
         pwd_custom(parsed[1]);
         return 1;
+    case 5:
+        if (parsed[1] == NULL)
+            return 1;
+        chdir(parsed[1]);
+        return 1;
     default:
         break;
     }
-
     return 0;
 }
-
 
 int processString(char *str, char **parsed)
 {
@@ -335,34 +344,46 @@ int processString(char *str, char **parsed)
         return 1 + piped;
 }
 
-void execArgs(char** parsed) 
-{ 
-    // Forking a child 
-    pid_t pid = fork();  
-  
-    if (pid == -1) { 
-        printf(BOLDRED"\nCoudln't fork child.."RESET); 
-        return; 
-    } else if (pid == 0) { 
-        if (execvp(parsed[0], parsed) < 0) { 
-            printf(BOLDRED"\nError executing command.."RESET); 
-        } 
-        exit(0); 
-    } else { 
-        // waiting for child to terminate 
-        wait(NULL);  
-        return; 
-    } 
-} 
-
-int main()
+void execArgs(char **parsed)
 {
+    pid_t pid = fork();
+    if (pid == -1)
+    {
+        printf(BOLDRED "\nCoudln't fork child.." RESET);
+        return;
+    }
+    else if (pid == 0)
+    {
+        if (execvp(parsed[0], parsed) < 0)
+        {
+            printf(BOLDRED "\nError executing command.." RESET);
+        }
+
+        exit(0);
+    }
+    else
+    {
+        wait(NULL);
+        return;
+    }
+}
+
+int main(int argc, char** argv)
+{
+    
+
     char user_input[MAX_CHAR];
     char *parsedArgs[MAXLIST];
     // char* parsedArgsPiped[1024];
 
+    if(argv[1]){
+        printf("  ");
+    if(!strcmp(argv[1],"test")){
+        test = 1;
+        printf("test set");
+    }}
     init_s();
-    // test();
+    
     int parsedCommBranch = 0;
     printf("\nTo see list of supported commands, enter \"list\" anytime\n ");
 
@@ -373,14 +394,12 @@ int main()
             printf(BOLDRED "Error --> Blank Input" RESET);
             continue;
         }
-
-        printf("\nInput is %s\n", user_input);
         parsedCommBranch = processString(user_input, parsedArgs);
-        if (parsedCommBranch == 1) 
-            execArgs(parsedArgs); 
-  
-        if (parsedCommBranch == 2) 
+        if (parsedCommBranch == 1)
+            execArgs(parsedArgs);
+
+        if (parsedCommBranch == 2)
             printf("Pipes not implemented yet. Come back soon.");
-            // execArgsPiped(parsedArgs, parsedArgsPiped); 
+        // execArgsPiped(parsedArgs, parsedArgsPiped);
     }
 }
