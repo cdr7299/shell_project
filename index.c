@@ -43,10 +43,9 @@ void pwd_custom(char *flags)
     char *ver = "--version";
     if (flags != NULL)
     {
-
         if (!strcmp(flags, ver))
         {
-            printf("Version 1.0--> Implementation inspired from Github source of Tirth Shah.\n");
+            printf("Version 0.1--> Implementation inspired from Github source of Tirth Shah.\n");
             printf("Modified by Vineet Sawhney");
         }
         else
@@ -83,7 +82,7 @@ void pwd_custom(char *flags)
                     perror("opendir(..)");
                     exit(1);
                 }
-                //traverse through the contents of the current directory
+                //read current directory
                 while ((fileEntry = readdir(directory)))
                 {
                     inode = fileEntry->d_ino;
@@ -278,26 +277,26 @@ int commands(char **parsed)
     // printf("Command given : %s\n", parsed[0]);
     // printf("Arguments passed %s\n", parsed[1]);
 
-    int NoOfOwnCmds = 5, i, switchOwnArg = 0;
-    char *ListOfOwnCmds[NoOfOwnCmds];
+    int n = 5, i, command_given = 0;
+    char *custom_commands[n];
     char *username;
 
-    ListOfOwnCmds[0] = "exit";
-    ListOfOwnCmds[1] = "cd_c";
-    ListOfOwnCmds[2] = "list";
-    ListOfOwnCmds[3] = "pwd_c";
-    ListOfOwnCmds[4] = "cd";
+    custom_commands[0] = "exit";
+    custom_commands[1] = "cd_c";
+    custom_commands[2] = "list";
+    custom_commands[3] = "pwd_c";
+    custom_commands[4] = "cd";
 
-    for (i = 0; i < NoOfOwnCmds; i++)
+    for (i = 0; i < n; i++)
     {
-        if (strcmp(parsed[0], ListOfOwnCmds[i]) == 0)
+        if (strcmp(parsed[0], custom_commands[i]) == 0)
         {
-            switchOwnArg = i + 1;
+            command_given = i + 1;
             break;
         }
     }
 
-    switch (switchOwnArg)
+    switch (command_given)
     {
     case 1:
         printf("\nGoodbye\n");
