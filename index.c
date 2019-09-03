@@ -25,64 +25,6 @@
 #define MASTER_ANIM_VAL_TEXT 12
 
 int test = 0;
-
-// void find_c(char **parsed)
-// {
-//     // printf("I run");
-//     char *filenames[100];
-//     char *search_key = parsed[1];
-//     if (parsed[1] == NULL)
-//     {
-//         printf("Please provide arguments. example --> find_c hello.c");
-//         return;
-//     }
-//     struct dirent *de; // Pointer for directory entry
-//     DIR *dr = opendir(".");
-//     if (dr == NULL) // opendir returns NULL if couldn't open directory
-//     {
-//         printf("Could not open current directory");
-//         return;
-//     }
-//     int z = 0;
-//     while ((de = readdir(dr)) != NULL)
-//     {
-//         // printf("%s\n", de->d_name);
-//         filenames[z] = malloc(100);
-//         filenames[z] = strdup(de->d_name);
-//         z++;
-//     }
-//     closedir(dr);
-
-//     int found = 0;
-//     for (int i = 0; i < z; i++)
-//     {
-//         // printf("%s\n",filenames[i]);
-//         if (!strcmp(filenames[i], search_key))
-//         {
-//             found = 1;
-//         }
-//     }
-//     if (found)
-//     {
-//         printf("FILE FOUND. Printing all files..\n");
-//         for (int i = 0; i < z; i++)
-//         {
-//             if (!strcmp(filenames[i], search_key))
-//             {
-//                 printf(BOLDCYAN "%s\n" RESET, filenames[i]);
-//             }
-//             printf("%s\n", filenames[i]);
-//         }
-//     }
-
-//     else
-//     {
-//         printf("File %s doesn't exist in current directory.", parsed[1]);
-//     }
-
-//     return;
-// }
-
 void loader()
 {
     printf("Dropping to shell. Please wait...\n");
@@ -153,7 +95,7 @@ void init_s()
         usleep(usecs);
         fflush(stdout);
     }
-    char *anim4 = "# Exit\n\n\n\n";
+    char *anim4 = "# Exit\n\n";
     // printf("# Exit\n\n\n\n");
     for (int i = 0; i < strlen(anim4); i++)
     {

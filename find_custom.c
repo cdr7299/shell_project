@@ -51,7 +51,9 @@ int main(int argc, char **argv)
             {
                 printf(BOLDCYAN "%s\n" RESET, filenames[i]);
             }
+            else{
             printf("%s\n", filenames[i]);
+            }
         }
     }
 
