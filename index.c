@@ -135,11 +135,13 @@ void loader()
     printf("Dropping to shell. Please wait...\n");
     int i;
     char str[] = "                                        ";
-    float usec_val ;
-    if (test == 1){
+    float usec_val;
+    if (test == 1)
+    {
         usec_val = TEST_ANIM_VAL_LOADER;
     }
-    else{
+    else
+    {
         printf("Loader set a master");
         usec_val = MASTER_ANIM_VAL_LOADER;
     }
@@ -149,7 +151,7 @@ void loader()
         printf(BOLDGREEN "\r[%s]" RESET, str);
         str[i] = '-';
         usleep(usec_val);
-        usec_val = usec_val*0.85;
+        usec_val = usec_val * 0.85;
         fflush(stdout);
     }
     // reset();
@@ -158,8 +160,14 @@ void loader()
 void init_s()
 {
     unsigned ms_delay;
-    if(test){ms_delay = TEST_ANIM_VAL_TEXT;}
-    else{ms_delay = MASTER_ANIM_VAL_TEXT;}
+    if (test)
+    {
+        ms_delay = TEST_ANIM_VAL_TEXT;
+    }
+    else
+    {
+        ms_delay = MASTER_ANIM_VAL_TEXT;
+    }
 
     unsigned usecs = ms_delay * 1000;
     clear();
@@ -213,7 +221,8 @@ void list_commands()
          "\n>Change Directory --> cd_c"
          "\n>Present Working Directory--> pwd_c"
          "\n>exit"
-         "\n>all other general commands available in UNIX shell");
+         "\n>all other general commands available in UNIX shell"
+         "\n>To open manual, do man_c followed by command name");
 }
 
 void get_cur_dir()
@@ -368,22 +377,23 @@ void execArgs(char **parsed)
     }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    
-
     char user_input[MAX_CHAR];
     char *parsedArgs[MAXLIST];
     // char* parsedArgsPiped[1024];
 
-    if(argv[1]){
+    if (argv[1])
+    {
         printf("  ");
-    if(!strcmp(argv[1],"test")){
-        test = 1;
-        printf("test set");
-    }}
+        if (!strcmp(argv[1], "test"))
+        {
+            test = 1;
+            printf("test set");
+        }
+    }
     init_s();
-    
+
     int parsedCommBranch = 0;
     printf("\nTo see list of supported commands, enter \"list\" anytime\n ");
 
