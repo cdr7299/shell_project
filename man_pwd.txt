@@ -1,0 +1,5 @@
+Custom implementation of pwd command available in UNIX
+Usage : pwd_c
+Flags available : --version
+
+Author : Vineet Sawhney

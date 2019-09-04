@@ -24,7 +24,54 @@
 #define TEST_ANIM_VAL_TEXT 2
 #define MASTER_ANIM_VAL_TEXT 12
 
+char *history[30];
+int history_index = 0;
 int test = 0;
+
+void open_history()
+{
+    // To save history of entered commands
+    int count = history_index - 1;
+    if (count < 10)
+    {
+        while (count > -1)
+        {
+            puts(history[count]);
+            // printf("\n");
+            count--;
+        }
+    }
+    else
+    {
+        //if number of commands is greater than 10, show the recent 10
+        while (count > (history_index - 10))
+        {
+            puts(history[count]);
+            // printf("\n");
+            count--;
+        }
+    }
+}
+
+void open_man(char **args)
+{
+    // Vi is preinstalled in most linux distros.
+    char *command_name = args[1];
+
+    if (!strcmp(command_name, "pwd_c"))
+    {
+        system("vi man_pwd.txt");
+    }
+    if (!strcmp(command_name, "find_c"))
+    {
+        system("vi man_find.txt");
+    }
+    if (!strcmp(command_name, "cd_c"))
+    {
+        system("vi man_cd.txt");
+    }
+}
+
 void loader()
 {
     printf("Dropping to shell. Please wait...\n");
@@ -113,12 +160,13 @@ void init_s()
 void list_commands()
 {
     puts("\nList of Custom Commands supported (To see implementation, read code):"
-         "\n> Change Directory --> cd_c"
-         "\n> Present Working Directory--> pwd_c"
-         "\n> Find if file exists in current directory --> find_c <filename>. example: find_c hello.c"
+         "\n> Change Directory -->" BOLDCYAN " cd_c" RESET
+         "\n> Present Working Directory -->" BOLDCYAN " pwd_c" RESET
+         "\n> Find if file exists in current directory -->" BOLDCYAN " find_c <filename>." RESET
+         "\n  example: find_c index.c"
+         "\n> To see last 10 commands, enter -->" BOLDCYAN " history" RESET
          "\n> exit"
-         "\n> All other general commands available in UNIX shell"
-         "\n> To open manual, do man_c followed by command name");
+         "\n> All other general commands available in UNIX shell" BOLDCYAN "\n> To open manual, enter man_c followed by command name" RESET);
 }
 
 void get_cur_dir()
@@ -135,7 +183,6 @@ void get_cur_dir()
 int take_user_input(char *arr)
 {
     char *buffer;
-
     get_cur_dir();
     buffer = readline(":~$ ");
     // scanf("%s",arr);
@@ -143,6 +190,11 @@ int take_user_input(char *arr)
     {
         add_history(buffer);
         strcpy(arr, buffer);
+        if(strcmp(buffer,"history")){
+            history[history_index] = malloc(100);
+            history[history_index] = strdup(buffer);
+            history_index++;
+        }
         return 0;
     }
     else
@@ -187,10 +239,7 @@ int parsePipe(char *str, char **strpiped)
 }
 int commands(char **parsed)
 {
-    // printf("Command given : %s\n", parsed[0]);
-    // printf("Arguments passed %s\n", parsed[1]);
-
-    int n = 6, i, command_given = 0;
+    int n = 8, i, command_given = 0;
     char *custom_commands[n];
     char *username;
 
@@ -200,6 +249,8 @@ int commands(char **parsed)
     custom_commands[3] = "pwd_c";
     custom_commands[4] = "cd";
     custom_commands[5] = "find_c";
+    custom_commands[6] = "man_c";
+    custom_commands[7] = "history";
 
     for (i = 0; i < n; i++)
     {
@@ -224,8 +275,6 @@ int commands(char **parsed)
         list_commands();
         return 1;
     case 4:
-        // pwd_custom(parsed[1]);
-        // execArgs(parsed);
         parsed[0] = "./pwd_c";
         return 0;
     case 5:
@@ -234,9 +283,14 @@ int commands(char **parsed)
         chdir(parsed[1]);
         return 1;
     case 6:
-        // find_c(parsed);
         parsed[0] = "./find_c";
         return 0;
+    case 7:
+        open_man(parsed);
+        return 1;
+    case 8:
+        open_history();
+        return 1;
     default:
         break;
     }
@@ -272,57 +326,51 @@ int processString(char *str, char **parsed, char **parsedpipe)
     else
         return 1 + piped;
 }
-void execArgsPiped(char **parsed, char **parsedpipe)
+void eCommandPiped(char **parsed, char **parsedpipe)
 {
     pid_t pid1, pid2;
-	int pipefd[2];
-	// The two commands we'll execute.  In this simple example, we will pipe
-	// the output of `ls` into `wc`, and count the number of lines present.
-	// char *argv1[] = {"ls", NULL};
-	// char *argv2[] = {"wc", "-l", NULL};
-	// Create a pipe.
-	pipe(pipefd);
-	// Create our first process.
-	pid1 = fork();
-	if (pid1 == 0)
-	{
+    int pipefd[2];
+    // Create a pipe.
+    pipe(pipefd);
+    // Create our first process.
+    pid1 = fork();
+    if (pid1 == 0)
+    {
         printf("Hello p1");
-		// Hook stdout up to the write end of the pipe and close the read end of
-		// the pipe which is no longer needed by this process.
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[0]);
-		// Exec `ls -l -h`.  If the exec fails, notify the user and exit.  Note
-		// that the execvp variant first searches the $PATH before calling execve.
-		execvp(parsed[0], parsed);
-		perror("exec");
-		return;
-	}
-	// Create our second process.
-	pid2 = fork();
-	if (pid2 == 0)
-	{
+        // Hook stdout up to the write end of the pipe and close the read end of
+        // the pipe which is no longer needed by this process.
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[0]);
+        //Exec our first command
+        execvp(parsed[0], parsed);
+        perror("exec");
+        return;
+    }
+    // Create our second process.
+    pid2 = fork();
+    if (pid2 == 0)
+    {
         printf("Hello p2");
 
-		// Hook stdin up to the read end of the pipe and close the write end of
-		// the pipe which is no longer needed by this process.
-		dup2(pipefd[0], STDIN_FILENO);
-		close(pipefd[1]);
-		// Similarly, exec `wc -l`.
-		execvp(parsedpipe[0], parsedpipe);
-		perror("exec");
-		return;
-	}
-	// Close both ends of the pipe.  The respective read/write ends of the pipe
-	// persist in the two processes created above (and happen to be tying stdout
-	// of the first processes to stdin of the second).
-	close(pipefd[0]);
-	close(pipefd[1]);
-	// Wait for everything to finish and exit.
-	wait(&pid1);
-	wait(&pid2);
-	return;
+        // Hook stdin up to the read end of the pipe and close the write end of
+        // the pipe which is no longer needed by this process.
+        dup2(pipefd[0], STDIN_FILENO);
+        close(pipefd[1]);
+        // Similarly, exec second command.
+        execvp(parsedpipe[0], parsedpipe);
+        perror("exec");
+        return;
+    }
+    // Close both ends of the pipe.
+
+    close(pipefd[0]);
+    close(pipefd[1]);
+    // Wait for everything to finish and exit.
+    wait(&pid1);
+    wait(&pid2);
+    return;
 }
-void execArgs(char **parsed)
+void eCommand(char **parsed)
 {
     pid_t pid = fork();
     if (pid == -1)
@@ -349,8 +397,8 @@ void execArgs(char **parsed)
 int main(int argc, char **argv)
 {
     char user_input[MAX_CHAR];
-    char *parsedArgs[MAXLIST];
-    char *parsedArgsPiped[MAXLIST];
+    char *args[MAXLIST];
+    char *argsPiped[MAXLIST];
 
     if (argv[1])
     {
@@ -358,9 +406,11 @@ int main(int argc, char **argv)
         if (!strcmp(argv[1], "test"))
         {
             test = 1;
-            printf("test set");
+            // printf("test set");
         }
     }
+
+    //start loading
     init_s();
 
     int parsedCommBranch = 0;
@@ -368,20 +418,20 @@ int main(int argc, char **argv)
 
     while (1)
     {
+        //wait for user input
         if (take_user_input(user_input))
         {
-            printf(BOLDRED "Error --> Blank Input" RESET);
+            // printf(BOLDRED "Error --> Blank Input" RESET);
             continue;
         }
-        parsedCommBranch = processString(user_input, parsedArgs, parsedArgsPiped);
+        parsedCommBranch = processString(user_input, args, argsPiped);
         if (parsedCommBranch == 1)
-            execArgs(parsedArgs);
+            eCommand(args);
 
         if (parsedCommBranch == 2)
         {
-            execArgsPiped(parsedArgs, parsedArgsPiped);
+            eCommandPiped(args, argsPiped);
         }
-
     }
     return 0;
 }

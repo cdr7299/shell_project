@@ -1,0 +1,6 @@
+Custom implementaion of find.
+Searches for keyword in filenames of current directory. 
+Usage: find <keyword>
+Flags available : find --version
+
+Author : Vineet Sawhney
