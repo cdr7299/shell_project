@@ -115,7 +115,7 @@ void list_commands()
     puts("\nList of Custom Commands supported (To see implementation, read code):"
          "\n> Change Directory --> cd_c"
          "\n> Present Working Directory--> pwd_c"
-         "\n> Find if file exists in current directory --> find_c <filename>. example: find_c hello.c" 
+         "\n> Find if file exists in current directory --> find_c <filename>. example: find_c hello.c"
          "\n> exit"
          "\n> All other general commands available in UNIX shell"
          "\n> To open manual, do man_c followed by command name");
@@ -168,7 +168,23 @@ void parseSpace(char *str, char **parsed)
     }
     // printf("%s",*parsed);
 }
+int parsePipe(char *str, char **strpiped)
+{
+    int i;
+    for (i = 0; i < 2; i++)
+    {
+        strpiped[i] = strsep(&str, "|");
+        if (strpiped[i] == NULL)
+            break;
+    }
 
+    if (strpiped[1] == NULL)
+        return 0; // returns zero if no pipe is found.
+    else
+    {
+        return 1;
+    }
+}
 int commands(char **parsed)
 {
     // printf("Command given : %s\n", parsed[0]);
@@ -219,7 +235,7 @@ int commands(char **parsed)
         return 1;
     case 6:
         // find_c(parsed);
-        parsed[0] ="./find_c";
+        parsed[0] = "./find_c";
         return 0;
     default:
         break;
@@ -227,21 +243,22 @@ int commands(char **parsed)
     return 0;
 }
 
-int processString(char *str, char **parsed)
+int processString(char *str, char **parsed, char **parsedpipe)
 {
     //HERE we parse the string, see stuff like if it has any arguments, pipes etc
     // char* strpiped[2];
     int piped = 0;
-
-    // piped = parsePipe(str, strpiped);
-    // piped = parsePipe(str);
-
+    char *strpiped[2];
+    piped = parsePipe(str, strpiped);
     // printf("%d",piped);
 
     if (piped)
     {
-        // parseSpace(strpiped[0], parsed);
-        // parseSpace(strpiped[1], parsedpipe);
+
+        parseSpace(strpiped[0], parsed);
+        parseSpace(strpiped[1], parsedpipe);
+        // printf("%s\n", strpiped[0]);
+        // printf("%s\n", strpiped[1]);
     }
     else
     {
@@ -255,7 +272,56 @@ int processString(char *str, char **parsed)
     else
         return 1 + piped;
 }
+void execArgsPiped(char **parsed, char **parsedpipe)
+{
+    pid_t pid1, pid2;
+	int pipefd[2];
+	// The two commands we'll execute.  In this simple example, we will pipe
+	// the output of `ls` into `wc`, and count the number of lines present.
+	// char *argv1[] = {"ls", NULL};
+	// char *argv2[] = {"wc", "-l", NULL};
+	// Create a pipe.
+	pipe(pipefd);
+	// Create our first process.
+	pid1 = fork();
+	if (pid1 == 0)
+	{
+        printf("Hello p1");
+		// Hook stdout up to the write end of the pipe and close the read end of
+		// the pipe which is no longer needed by this process.
+		dup2(pipefd[1], STDOUT_FILENO);
+		close(pipefd[0]);
+		// Exec `ls -l -h`.  If the exec fails, notify the user and exit.  Note
+		// that the execvp variant first searches the $PATH before calling execve.
+		execvp(parsed[0], parsed);
+		perror("exec");
+		return;
+	}
+	// Create our second process.
+	pid2 = fork();
+	if (pid2 == 0)
+	{
+        printf("Hello p2");
 
+		// Hook stdin up to the read end of the pipe and close the write end of
+		// the pipe which is no longer needed by this process.
+		dup2(pipefd[0], STDIN_FILENO);
+		close(pipefd[1]);
+		// Similarly, exec `wc -l`.
+		execvp(parsedpipe[0], parsedpipe);
+		perror("exec");
+		return;
+	}
+	// Close both ends of the pipe.  The respective read/write ends of the pipe
+	// persist in the two processes created above (and happen to be tying stdout
+	// of the first processes to stdin of the second).
+	close(pipefd[0]);
+	close(pipefd[1]);
+	// Wait for everything to finish and exit.
+	wait(&pid1);
+	wait(&pid2);
+	return;
+}
 void execArgs(char **parsed)
 {
     pid_t pid = fork();
@@ -284,7 +350,7 @@ int main(int argc, char **argv)
 {
     char user_input[MAX_CHAR];
     char *parsedArgs[MAXLIST];
-    // char* parsedArgsPiped[1024];
+    char *parsedArgsPiped[MAXLIST];
 
     if (argv[1])
     {
@@ -307,12 +373,15 @@ int main(int argc, char **argv)
             printf(BOLDRED "Error --> Blank Input" RESET);
             continue;
         }
-        parsedCommBranch = processString(user_input, parsedArgs);
+        parsedCommBranch = processString(user_input, parsedArgs, parsedArgsPiped);
         if (parsedCommBranch == 1)
             execArgs(parsedArgs);
 
         if (parsedCommBranch == 2)
-            printf("Pipes not implemented yet. Come back soon.");
-        // execArgsPiped(parsedArgs, parsedArgsPiped);
+        {
+            execArgsPiped(parsedArgs, parsedArgsPiped);
+        }
+
     }
+    return 0;
 }
