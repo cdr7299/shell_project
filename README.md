@@ -1,4 +1,4 @@
-										-------- Custom Shell Interpreter Implementation --------
+										-------- Custom Shell Interpreter Implementation -> ZShell  --------
 
 Instructions to run -> 
 
@@ -7,8 +7,9 @@ Instructions to run ->
 # if make is successfull, you'll see a message.
 # run ./zshell
 # profit
+# Note if you're bored of animations, just run ./zshell test. (I got bored too)
 
-Stuff Implemented ->
+Things Implemented ->
 
 # Menu driven list
 # Manual pages

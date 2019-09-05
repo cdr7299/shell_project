@@ -16,6 +16,13 @@ int main(int argc, char **argv)
         printf("Please provide arguments. example --> find_c hello.c");
         return 0;
     }
+
+    if (!strcmp(argv[1], "--version")){
+
+        printf("Version 0.1\n");
+        printf("Enjoy finding stuff :) \n");
+        return 0;
+    }
     struct dirent *de; 
     DIR *dr = opendir(".");
     if (dr == NULL) 

@@ -29,18 +29,46 @@
 char *history[30];
 int history_index = 0;
 int test = 0;
+char *time_arr[30];
+char *date_arr[30];
+
+
+void getTime()
+{
+    time_t current_time;
+    struct tm *time_info;
+    char timeString[9]; // space for "HH:MM:SS\0"
+
+    time(&current_time);
+    time_info = localtime(&current_time);
+
+    strftime(timeString, sizeof(timeString), "%H:%M:%S", time_info);
+    time_arr[history_index] = malloc(100);
+    strcpy(time_arr[history_index], timeString);
+    // puts(timeString);
+    //Date
+
+    char text[100];
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+
+    strftime(text, sizeof(text) - 1, "%d/%m/%Y", t);
+    date_arr[history_index] = malloc(100);
+    strcpy(date_arr[history_index],text);
+    // printf("%s",date_arr[history_index]);
+}
 
 void open_history()
 {
-    // get_hist
+    // get_history
     // To save history of entered commands
     int count = history_index - 1;
+    printf(BOLDCYAN "Command Name \t\tTime \t\tDate \t\t\tStatus\n" RESET);
     if (count < 10)
     {
         while (count > -1)
         {
-            puts(history[count]);
-            // printf("\n");
+            printf("%s \t\t\t%s \t%s \t\tTRUE\n", history[count], time_arr[count],date_arr[count]);
             count--;
         }
     }
@@ -49,8 +77,7 @@ void open_history()
         //if number of commands is greater than 10, show the recent 10
         while (count > (history_index - 10))
         {
-            puts(history[count]);
-            // printf("\n");
+            printf("%s \t\t\t%s \t%s \t\tTRUE\n", history[count], time_arr[count],date_arr[count]);
             count--;
         }
     }
@@ -60,6 +87,12 @@ void open_man(char **args)
 {
     // Vi is preinstalled in most linux distros.
     char *command_name = args[1];
+    // if(strcmp(command_name,NULL))
+    if (command_name == NULL)
+    {
+        printf("Please enter the name of command you want the manual page for!\n");
+        return;
+    }
 
     if (!strcmp(command_name, "pwd_c"))
     {
@@ -75,7 +108,6 @@ void open_man(char **args)
     {
         system("cat man_cd.txt");
     }
-    
 }
 
 void loader()
@@ -196,9 +228,11 @@ int take_user_input(char *arr)
     {
         add_history(buffer);
         strcpy(arr, buffer);
-        if(strcmp(buffer,"history")){
+        if (strcmp(buffer, "history"))
+        {
             history[history_index] = malloc(100);
             history[history_index] = strdup(buffer);
+            getTime();
             history_index++;
         }
         return 0;
@@ -425,6 +459,7 @@ int main(int argc, char **argv)
     while (1)
     {
         //wait for user input
+        // getTime();
         if (take_user_input(user_input))
         {
             // printf(BOLDRED "Error --> Blank Input" RESET);
