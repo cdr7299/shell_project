@@ -8,6 +8,8 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <limits.h>
+#include <time.h>
+
 #define clear() printf("\033[H\033[J")
 #define MAX_CHAR 200
 #define MAXLIST 100 // max number of commands to be supported
@@ -30,6 +32,7 @@ int test = 0;
 
 void open_history()
 {
+    // get_hist
     // To save history of entered commands
     int count = history_index - 1;
     if (count < 10)
@@ -60,16 +63,19 @@ void open_man(char **args)
 
     if (!strcmp(command_name, "pwd_c"))
     {
-        system("vi man_pwd.txt");
+        system("cat man_pwd.txt");
     }
+
     if (!strcmp(command_name, "find_c"))
     {
-        system("vi man_find.txt");
+        system("cat man_find.txt");
     }
+
     if (!strcmp(command_name, "cd_c"))
     {
-        system("vi man_cd.txt");
+        system("cat man_cd.txt");
     }
+    
 }
 
 void loader()
