@@ -63,12 +63,12 @@ void open_history()
     // get_history
     // To save history of entered commands
     int count = history_index - 1;
-    printf(BOLDCYAN "Command Name \t\tTime \t\tDate \t\t\tStatus\n" RESET);
+    printf(BOLDCYAN "Command Name \t\tTime \t\tDate\n" RESET);
     if (count < 10)
     {
         while (count > -1)
         {
-            printf("%s \t\t\t%s \t%s \t\tTRUE\n", history[count], time_arr[count],date_arr[count]);
+            printf("%s \t\t\t%s \t%s \t\t\n", history[count], time_arr[count],date_arr[count]);
             count--;
         }
     }
@@ -77,7 +77,7 @@ void open_history()
         //if number of commands is greater than 10, show the recent 10
         while (count > (history_index - 10))
         {
-            printf("%s \t\t\t%s \t%s \t\tTRUE\n", history[count], time_arr[count],date_arr[count]);
+            printf("%s \t\t\t%s \t%s \t\t\n", history[count], time_arr[count],date_arr[count]);
             count--;
         }
     }
@@ -226,7 +226,7 @@ int take_user_input(char *arr)
     // scanf("%s",arr);
     if (strlen(buffer) != 0)
     {
-        add_history(buffer);
+        // add_history(buffer);
         strcpy(arr, buffer);
         if (strcmp(buffer, "history"))
         {
@@ -424,7 +424,7 @@ void eCommand(char **parsed)
         {
             printf(BOLDRED "\nError executing command.." RESET);
         }
-
+        
         exit(0);
     }
     else
