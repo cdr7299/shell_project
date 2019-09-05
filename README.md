@@ -1,5 +1,10 @@
 										-------- Custom Shell Interpreter Implementation -> ZShell  --------
 
+Required software -> 
+# any linux distro
+# make
+# gcc
+
 Instructions to run -> 
 
 # cd to directory contatining source code
@@ -18,7 +23,7 @@ Things Implemented ->
 # All commands which interact with system run as processes (Through execvp and fork)
 # PWD -->>> Implemented as pwd_c. Note that i have generally used getcwd() if i need dir. information in my program. When pwd_c is called, the pwd_c executable is run.
 # FIND -->>> Implemented as find_c. Implemented as module.
-# CD -->>> Implemented as cd_c.
+# CD -->>> Implemented as cd_c. it can't be run in execvp due to system design limitation, so chdir() wrapper is used for this
 # piping works fine.
 # added makefile for easier compilation
 

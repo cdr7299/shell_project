@@ -1,4 +1,5 @@
 Custom implementation of pwd command available in UNIX
+Prints the present working directory.
 Usage : pwd_c
 Flags available : --version
 

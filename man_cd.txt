@@ -1,4 +1,5 @@
-Change Directory
+Change Directory 
+Allows to change directory to the specified path
 Usage : cd <path>
 
 Author : Vineet Sawhney
