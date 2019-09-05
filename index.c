@@ -22,7 +22,7 @@
 #define BOLDCYAN "\033[1m\033[36m"  /* Bold Cyan */
 #define BOLDWHITE "\033[1m\033[37m" /* Bold White */
 #define TEST_ANIM_VAL_LOADER 10000
-#define MASTER_ANIM_VAL_LOADER 150000
+#define MASTER_ANIM_VAL_LOADER 160000
 #define TEST_ANIM_VAL_TEXT 2
 #define MASTER_ANIM_VAL_TEXT 12
 
@@ -112,7 +112,7 @@ void open_man(char **args)
 
 void loader()
 {
-    printf("Dropping to shell. Please wait...\n");
+    printf("Loading. Please wait...\n");
     int i;
     char str[] = "                                        ";
     float usec_val;
@@ -190,8 +190,7 @@ void init_s()
         fflush(stdout);
     }
 
-    loader();
-    printf("\n");
+    
     // sleep(1);
 }
 
@@ -422,7 +421,7 @@ void eCommand(char **parsed)
     {
         if (execvp(parsed[0], parsed) < 0)
         {
-            printf(BOLDRED "\nError executing command.." RESET);
+            printf(BOLDRED "Error executing. Most probably command doesn't exist. Did you mean something else?" RESET);
         }
         
         exit(0);
@@ -452,7 +451,11 @@ int main(int argc, char **argv)
 
     //start loading
     init_s();
-
+    char* check_enter;
+    printf("\nPress [Enter] key to load the shell\n");
+    getchar();
+    fflush(stdin);
+    loader();
     int parsedCommBranch = 0;
     printf("\nTo see list of supported commands, enter \"list\" anytime\n ");
 
